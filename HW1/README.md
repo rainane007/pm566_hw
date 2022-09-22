@@ -705,26 +705,8 @@ site19$site[!(site19$site %in% site04$site)]
     ## [80] "Porterville"                                      
     ## [81] "Ojai - East Ojai Ave"
 
-``` r
-pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
-pm$yday <- yday(pm$Date)
-
-ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
-  geom_line() +
-  labs(title="Temporal patterns of Daily PM2.5 in all sites",
-        x ="Day of the year", y = "PM2.5 (ug/m3)",
-        color = "Year")
-```
-
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-In both years, daily PM<sub>2.5</sub> levels fluctuated all year around
-with seasonal variation. In general, we observed a decrease in daily
-level of PM<sub>2.5</sub> from 2004 to 2019. In 2004, we observed peak
-PM2.5 during summer, relatively high levels of PM<sub>2.5</sub> during
-fall and winter, and relatively low levels of PM<sub>2.5</sub> during
-April and May.In 2019, we did not observe a single peak, but we observed
-relatively high levels of PM<sub>2.5</sub> during fall and winter.
+Therefore, in general, monitoring data in 2019 covered more area than
+2004.
 
 # Q5
 
@@ -736,6 +718,10 @@ up explanations of what you observe in these data.
 ### State Level
 
 ``` r
+pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
+pm$yday <- yday(pm$Date)
+
+
 statelevel <- pm %>%
   group_by(yday,year) %>%
   summarise(pm25av=mean(pm25))
@@ -752,7 +738,7 @@ ggplot(statelevel, aes(x=yday, y=pm25av,color=as.factor(year))) +
         color = "Year")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 First, we averaged the daily PM<sub>2.5</sub> across all monitoring
 sites in CA for each day in 2004 and 2019, and plotted the average daily
@@ -801,7 +787,7 @@ ggplot(pm,aes(x=county,y=pm25,color=as.factor(year)))+
   coord_flip()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 pm %>%
@@ -854,7 +840,7 @@ ggplot(pmla,aes(x=site,y=pm25,color=as.factor(year)))+
   coord_flip()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 pmla %>%

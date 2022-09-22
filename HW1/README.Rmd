@@ -170,26 +170,18 @@ site04$site[!(site04$site %in% site19$site)]
 site19$site[!(site19$site %in% site04$site)]
 ```
 
-```{r}
-pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
-pm$yday <- yday(pm$Date)
-
-ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
-  geom_line() +
-  labs(title="Temporal patterns of Daily PM2.5 in all sites",
-        x ="Day of the year", y = "PM2.5 (ug/m3)",
-        color = "Year")
-
-```
-
-In both years, daily PM~2.5~ levels fluctuated all year around with seasonal variation. In general, we observed a decrease in daily level of PM~2.5~ from 2004 to 2019.
-In 2004, we observed peak PM2.5 during summer, relatively high levels of PM~2.5~ during fall and winter, and relatively low levels of PM~2.5~ during April and May.In 2019, we did not observe a single peak, but we observed relatively high levels of PM~2.5~ during fall and winter.
+Therefore, in general, monitoring data in 2019 covered more area than 2004.
 
 # Q5
 Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data.
 
 ### State Level
 ```{r warning=FALSE}
+
+pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
+pm$yday <- yday(pm$Date)
+
+
 statelevel <- pm %>%
   group_by(yday,year) %>%
   summarise(pm25av=mean(pm25))
