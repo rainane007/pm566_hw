@@ -1,0 +1,198 @@
+---
+title: "pm566_HW1"
+author: "Yuhong Hu"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(data.table)
+library(lubridate)
+library(skimr)
+library(htmltools)
+```
+# Introduction
+The primary question you will answer is whether daily concentrations of PM2.5 (particulate matter air pollution with aerodynamic diameter less than 2.5  μm) have decreased in California over the last 15 years (from 2004 to 2019).
+# Q1
+Read in the data using data.table(). For each of the two datasets, check the dimensions, headers, footers, variable names and variable types. Check for any data issues, particularly in the key variable we are analyzing. Make sure you write up a summary of all of your findings.
+## Read in
+```{r}
+pm04 <- fread("~/Desktop/PhD course/pm 566/pm566_hw/HW1/ad_viz_plotval_data_2004.csv")
+pm19 <- fread("~/Desktop/PhD course/pm 566/pm566_hw/HW1/ad_viz_plotval_data_2019.csv")
+```
+
+## Check for 2004 data
+In PM2.5 2004 dataset, there are 20 variables and 19233 observations. There were 8 character variables and 12 numeric variables.All the variable we are going to use is in right format and type, except for Date, which we are going to change it from character class to correct date format. No missing value were found for key variables (Date, Sitename, county,Daily Mean PM2.5 Concentration) we are going to use. Based on the summary statistics, no obvious outlier was found.
+```{r}
+dim(pm04)
+head(pm04)
+tail(pm04)
+colnames(pm04)
+str(pm04)
+skim(pm04)
+
+```
+
+## Check for 2019 data
+In PM2.5 2019 dataset, there are 20 variables and 53156 observations. There were 8 character variables and 12 numeric variables.All the variable we are going to use is in right format and type, except for Date, which we are going to change it from character class to correct date format. No missing value were found for key variables (Date, Sitename, county,Daily Mean PM2.5 Concentration) we are going to use.Based on the summary statistics, no obvious outlier was found.
+```{r}
+dim(pm19)
+head(pm19)
+tail(pm19)
+colnames(pm19)
+str(pm19)
+skim(pm19)
+
+```
+
+
+# Q2
+Combine the two years of data into one data frame. Use the Date variable to create a new column for year, which will serve as an identifier. Change the names of the key variables so that they are easier to refer to in your code.
+```{r}
+pm04$year <- year(as.Date(pm04$Date,"%m/%d/%Y"))
+pm19$year <- year(as.Date(pm19$Date,"%m/%d/%Y"))
+# check whether the conversion was right
+table(pm04$year)
+table(pm19$year)
+# Combine the two datasets
+pm <- rbind(pm04,pm19)
+# Rename some variables for convenience
+pm <- pm %>%
+  rename(pm25 = `Daily Mean PM2.5 Concentration`,
+         countycode = COUNTY_CODE,
+         county = COUNTY,
+         site = `Site Name`,
+         lat = SITE_LATITUDE,
+         lon = SITE_LONGITUDE,
+         )
+
+```
+
+# Q3
+Create a basic map in leaflet() that shows the locations of the sites (make sure to use different colors for each year). Summarize the spatial distribution of the monitoring sites.
+```{r}
+#update the two datasets 
+pm04 <- subset(pm,year==2004)
+pm19 <- subset(pm,year==2019)
+# create unique sites for the two years
+site04 <- (unique(pm04[,c("lat","lon")])) 
+site19 <- (unique(pm19[,c("lat","lon")])) 
+
+leaflet() %>% 
+  addProviderTiles('CartoDB.Positron') %>% 
+  addCircles(
+    data = site04,
+    lat = ~lat, lng = ~lon, popup = "2004",
+    opacity = 1, fillOpacity = 1, radius = 300,color = 'blue'
+    ) %>%
+  addCircles(
+    data = site19,
+    lat = ~lat, lng = ~lon, popup = "2019",
+    opacity=0.7, fillOpacity=0.7, radius = 300,color = 'orange'
+    )
+
+
+```
+
+As the monitor sites map shown above (sites of 2004 in blue, sites of 2019 in orange). The sites were concentrated in two big cites (Los Angles, and San Francisco) and their surroundings. The low density of sites were shown in some area close to state border (California-Arizona, California-Nevada, California-Oregon).Sites in 2019 covered almost all the monitor sites in 2004, and there were more sites put in use in 2019 compared to 2004. A very small proportion of sites in 2004 shut in 2019.
+
+# Q4
+Check for any missing or implausible values of PM2.5 in the combined dataset. Explore the proportions of each and provide a summary of any temporal patterns you see in these observations.
+```{r}
+#to remove this to Q1, and remember to at site/county misiing
+anyNAa(pm$pm25)
+summary(pm$pm25)
+quantile(pm$pm25,seq(0,1,0.1))
+dim(pm)
+pm <- pm[pm$pm25>=0]
+dim(pm)
+```
+No missing PM2.5. The PM2.5 value under 0 is implausible. Thus, we exclude these observations (N = 283). The very large PM2.5 value (e.g., maximum 251 ug/m3) is still plausible, though very abnormal.
+
+```{r}
+pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
+pm$yday <- yday(pm$Date)
+
+ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
+  geom_line() +
+  labs(title="Temporal patterns of Daily PM2.5 in all sites",
+        x ="Day of the year", y = "PM2.5 (ug/m3)",
+        color = "Year")
+
+```
+In both years, daily PM2.5 levels fluctuated all year around with seasonal variation. In general, we observed a decrease in daily level of PM2.5 from 2004 to 2019.
+In 2004, we observed peak PM2.5 during summer, relatively high levels of PM25 during fall and winter, and relatively low levels of PM2.5 during April and May.In 2019, we did not observe a single peak, but we observed relatively high levels of PM2.5 during fall and winter.
+
+# Q5
+Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data.
+
+### State Level
+```{r}
+ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
+  geom_line() +
+  labs(title="Temporal patterns of Daily PM2.5 in all sites",
+        x ="Day of the year", y = "PM2.5 (ug/m3)",
+        color = "Year")
+
+pm %>%
+  group_by(year) %>%
+  summarise(mean=mean(pm25),
+            percentile25 = quantile(pm25,probs=0.25),
+            median = median(pm25),
+            percentile75 = quantile(pm25,probs=0.75),
+            min = min(pm25),
+            max = max(pm25)
+            )
+
+```
+By comparing the temporal patterns of daily PM2.5 level in 2004 and 2019, and by comparing mean, median, 25th percentile,75th percentile, minimum and maximum of daily PM2.5 combining all sites in these two years, we observed a decrease in PM2.5 from 2004 to 2019 in each site in LA.
+
+### County Level?????
+```{r fig.height=10, fig.width=6}
+length(unique(pm$countycode))
+# 51 different counties, not suitable for time-seires plots
+ggplot(pm,aes(x=county,y=pm25,color=as.factor(year)))+
+  geom_boxplot()+
+  labs(title="Daily PM2.5 distribution by county",
+        x ="County", y = "PM2.5 (ug/m3)",
+        color = "Year")+
+  coord_flip()
+
+pm %>%
+  group_by(county,year) %>%
+  summarise(mean=mean(pm25),
+            percentile25 = quantile(pm25,probs=0.25),
+            median = median(pm25),
+            percentile75 = quantile(pm25,probs=0.75),
+            min = min(pm25),
+            max = max(pm25)
+            )
+  
+```
+By comparing the overal distribution of daily PM2.5 level boxplots in 2004 and 2019, and by comparing mean, median, 25th percentile,75th percentile of daily PM2.5 in each county in these two years, we observed a decrease in daily PM2.5 from 2004 to 2019 in almost all the counties in California with just a few exceptions.
+
+### Site (in Los Angeles) Level
+```{r}
+pmla <- pm[pm$county=='Los Angeles']
+ggplot(pmla,aes(x=site,y=pm25,color=as.factor(year)))+
+  geom_boxplot()+
+  labs(title="Daily PM2.5 distribution by sites in LA",
+        x ="Site", y = "PM2.5 (ug/m3)",
+        color = "Year")+
+  coord_flip()
+
+pmla %>%
+  group_by(site,year) %>%
+  summarise(mean=mean(pm25),
+            percentile25 = quantile(pm25,probs=0.25),
+            median = median(pm25),
+            percentile75 = quantile(pm25,probs=0.75),
+            min = min(pm25),
+            max = max(pm25)
+            )
+```
+By comparing the overal distribution of daily PM2.5 level boxplots in 2004 and 2019, and by comparing mean, median, 25th percentile,75th percentile of daily PM2.5 in each site in LA in these two years, we observed a decrease in daily PM2.5 from 2004 to 2019 iin each site in LA.
