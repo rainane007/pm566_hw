@@ -528,8 +528,11 @@ Check for any missing or implausible values of PM<sub>2.5</sub> in the
 combined dataset. Explore the proportions of each and provide a summary
 of any temporal patterns you see in these observations.
 
+We have explored NA and implausible value in Q1, here we would focus on
+how the number of sites and counties with monitoring PM<sub>2.5</sub>
+data change over time.
+
 ``` r
-#to remove this to Q1, and remember to at site/county misiing
 pm %>%
   filter(year==2004) %>%
   distinct(county) %>%
@@ -706,7 +709,26 @@ site19$site[!(site19$site %in% site04$site)]
     ## [81] "Ojai - East Ojai Ave"
 
 Therefore, in general, monitoring data in 2019 covered more area than
-2004.
+2004. We also explored the temporal patterns of daily PM2.5 combining
+obervations from all sites.
+
+``` r
+pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
+pm$yday <- yday(pm$Date)
+
+ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
+  geom_line() +
+  labs(title="Temporal patterns of Daily PM2.5 in all sites",
+        x ="Day of the year", y = "PM2.5 (ug/m3)",
+        color = "Year")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+For all the observations, we observed in both 2004 and 2019, the
+PM<sub>2.5</sub> level fluctuates all year around. The relative low
+levels were found in spring. The relative high levels were found in
+winter and some periods of summer and fall.
 
 # Q5
 
@@ -718,10 +740,6 @@ up explanations of what you observe in these data.
 ### State Level
 
 ``` r
-pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
-pm$yday <- yday(pm$Date)
-
-
 statelevel <- pm %>%
   group_by(yday,year) %>%
   summarise(pm25av=mean(pm25))
@@ -733,18 +751,18 @@ statelevel <- pm %>%
 ``` r
 ggplot(statelevel, aes(x=yday, y=pm25av,color=as.factor(year))) +
   geom_line() +
-  labs(title="Temporal patterns of Daily PM2.5 in all sites",
+  labs(title="Temporal patterns of Average Daily PM2.5",
         x ="Day of the year", y = "PM2.5 (ug/m3)",
         color = "Year")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 First, we averaged the daily PM<sub>2.5</sub> across all monitoring
 sites in CA for each day in 2004 and 2019, and plotted the average daily
 level on day of the year. By comparing the temporal patterns of daily
 PM<sub>2.5</sub> level in 2004 and 2019, we observed a decrease in
-PM<sub>2.5</sub> from 2004 to 2019 almos in each season at state level.
+PM<sub>2.5</sub> from 2004 to 2019 almost in each season at state level.
 
 ``` r
 pm %>%
@@ -787,7 +805,7 @@ ggplot(pm,aes(x=county,y=pm25,color=as.factor(year)))+
   coord_flip()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 pm %>%
@@ -840,7 +858,7 @@ ggplot(pmla,aes(x=site,y=pm25,color=as.factor(year)))+
   coord_flip()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 pmla %>%

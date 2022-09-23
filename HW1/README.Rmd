@@ -129,8 +129,10 @@ As the monitor sites map shown above (sites of 2004 in blue, sites of 2019 in or
 
 # Q4
 Check for any missing or implausible values of PM~2.5~ in the combined dataset. Explore the proportions of each and provide a summary of any temporal patterns you see in these observations.
+
+We have explored NA and implausible value in Q1, here we would focus on how the number of sites and counties with monitoring PM~2.5~ data change over time.
 ```{r}
-#to remove this to Q1, and remember to at site/county misiing
+
 pm %>%
   filter(year==2004) %>%
   distinct(county) %>%
@@ -171,30 +173,38 @@ site04$site[!(site04$site %in% site19$site)]
 site19$site[!(site19$site %in% site04$site)]
 ```
 
-Therefore, in general, monitoring data in 2019 covered more area than 2004.
+Therefore, in general, monitoring data in 2019 covered more area than 2004. We also explored the temporal patterns of daily PM2.5 combining obervations from all sites.
 
-# Q5
-Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data.
-
-### State Level
-```{r warning=FALSE}
-
+```{r}
 pm$Date <- as.Date(pm$Date,"%m/%d/%Y")
 pm$yday <- yday(pm$Date)
 
-
-statelevel <- pm %>%
-  group_by(yday,year) %>%
-  summarise(pm25av=mean(pm25))
-
-ggplot(statelevel, aes(x=yday, y=pm25av,color=as.factor(year))) +
+ggplot(pm, aes(x=yday, y=pm25,color=as.factor(year))) +
   geom_line() +
   labs(title="Temporal patterns of Daily PM2.5 in all sites",
         x ="Day of the year", y = "PM2.5 (ug/m3)",
         color = "Year")
 ```
 
-First, we averaged the daily PM~2.5~ across all monitoring sites in CA for each day in 2004 and 2019, and plotted the average daily level on day of the year. By comparing the temporal patterns of daily PM~2.5~ level in 2004 and 2019, we observed a decrease in PM~2.5~ from 2004 to 2019 almos in each season at state level.
+For all the observations, we observed in both 2004 and 2019, the PM~2.5~ level fluctuates all year around. The relative low levels were found in spring. The relative high levels were found in winter and some periods of summer and fall.
+
+# Q5
+Explore the main question of interest at three different spatial levels. Create exploratory plots (e.g. boxplots, histograms, line plots) and summary statistics that best suit each level of data. Be sure to write up explanations of what you observe in these data.
+
+### State Level
+```{r warning=FALSE}
+statelevel <- pm %>%
+  group_by(yday,year) %>%
+  summarise(pm25av=mean(pm25))
+
+ggplot(statelevel, aes(x=yday, y=pm25av,color=as.factor(year))) +
+  geom_line() +
+  labs(title="Temporal patterns of Average Daily PM2.5",
+        x ="Day of the year", y = "PM2.5 (ug/m3)",
+        color = "Year")
+```
+
+First, we averaged the daily PM~2.5~ across all monitoring sites in CA for each day in 2004 and 2019, and plotted the average daily level on day of the year. By comparing the temporal patterns of daily PM~2.5~ level in 2004 and 2019, we observed a decrease in PM~2.5~ from 2004 to 2019 almost in each season at state level.
 
 ```{r warning=FALSE}
 pm %>%
