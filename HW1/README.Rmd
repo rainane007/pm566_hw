@@ -16,6 +16,7 @@ library(data.table)
 library(lubridate)
 library(skimr)
 ```
+
 # Introduction
 The primary question you will answer is whether daily concentrations of PM~2.5~ (particulate matter air pollution with aerodynamic diameter less than 2.5  μm) have decreased in California over the last 15 years (from 2004 to 2019).
 
