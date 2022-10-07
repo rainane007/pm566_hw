@@ -100,8 +100,8 @@ chs %>%
   head
 ```
 
-
 ## Q2
+
 Create a new categorical variable named `obesity_level` using the BMI measurement (underweight BMI<14; normal BMI 14-22; overweight BMI 22-24; obese BMI>24). To make sure the variable is rightly coded, create a summary table that contains the minimum BMI, maximum BMI, and the total number of observations per category.
 ```{r}
 
@@ -125,6 +125,7 @@ chs %>%
 
 
 ## Q3
+
 Create another categorical variable named `smoke_gas_exposure` that summarizes “Second Hand Smoke” and “Gas Stove.” The variable should have four categories in total.
 ```{r}
 
@@ -339,6 +340,7 @@ leaflet() %>%
 According to the map, the highest PM~2.5~ mass was found near Riverside (Mira Loma, Upland, Riverside, San Dimas, all >= 20 μg/m^3^). Long beach also had a relatively high PM~2.5~ mass (19.2 μg/m^3^). However, almost all the rest of the comunities had relatively low PM~2.5~ mass level (less than 13 μg/m^3^).
 
 ### Choose a visualization to examine whether PM~2.5~ mass is associated with FEV
+
 ```{r}
 chs %>%
   ggplot(aes(x=pm25_mass,y=fev_imp))+
