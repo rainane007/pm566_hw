@@ -284,41 +284,43 @@ pub %>%
   count(word,term)%>% 
   group_by(term) %>% 
   top_n(5,n) %>% 
-  arrange(desc(term),desc(n))%>% 
+  arrange(term,desc(n))%>% 
   select(term,word,n)%>% 
   kable()
 ```
 
 | term            | word         |    n |
 |:----------------|:-------------|-----:|
-| prostate cancer | cancer       | 3840 |
-| prostate cancer | prostate     | 3832 |
-| prostate cancer | patients     |  934 |
-| prostate cancer | treatment    |  926 |
-| prostate cancer | disease      |  652 |
-| preeclampsia    | pre          | 2038 |
-| preeclampsia    | eclampsia    | 2005 |
-| preeclampsia    | preeclampsia | 1863 |
-| preeclampsia    | women        | 1196 |
-| preeclampsia    | pregnancy    |  969 |
-| meningitis      | patients     |  446 |
-| meningitis      | meningitis   |  429 |
-| meningitis      | meningeal    |  219 |
-| meningitis      | csf          |  206 |
-| meningitis      | clinical     |  187 |
-| cystic fibrosis | fibrosis     |  867 |
-| cystic fibrosis | cystic       |  862 |
-| cystic fibrosis | cf           |  625 |
-| cystic fibrosis | patients     |  586 |
-| cystic fibrosis | disease      |  400 |
 | covid           | covid        | 7275 |
 | covid           | 19           | 7035 |
 | covid           | patients     | 2293 |
 | covid           | disease      |  943 |
 | covid           | pandemic     |  800 |
+| cystic fibrosis | fibrosis     |  867 |
+| cystic fibrosis | cystic       |  862 |
+| cystic fibrosis | cf           |  625 |
+| cystic fibrosis | patients     |  586 |
+| cystic fibrosis | disease      |  400 |
+| meningitis      | patients     |  446 |
+| meningitis      | meningitis   |  429 |
+| meningitis      | meningeal    |  219 |
+| meningitis      | csf          |  206 |
+| meningitis      | clinical     |  187 |
+| preeclampsia    | pre          | 2038 |
+| preeclampsia    | eclampsia    | 2005 |
+| preeclampsia    | preeclampsia | 1863 |
+| preeclampsia    | women        | 1196 |
+| preeclampsia    | pregnancy    |  969 |
+| prostate cancer | cancer       | 3840 |
+| prostate cancer | prostate     | 3832 |
+| prostate cancer | patients     |  934 |
+| prostate cancer | treatment    |  926 |
+| prostate cancer | disease      |  652 |
 
-\##Q2 Tokenize the abstracts into bigrams. Find the 10 most common
-bigram and visualize them with ggplot2.
+## Q2
+
+Tokenize the abstracts into bigrams. Find the 10 most common bigram and
+visualize them with ggplot2.
 
 ``` r
 # Bigrams after removing stop words
@@ -357,7 +359,7 @@ pub %>%
 
 ![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-\##Q3
+## Q3
 
 Calculate the TF-IDF value for each word-search term combination. (here
 you want the search term to be the “document”) What are the 5 tokens
@@ -407,4 +409,12 @@ pub %>%
 | prostate cancer | prostatectomy   |  215 | 0.0031585 | 1.6094379 | 0.0050834 |
 | prostate cancer | castration      |  148 | 0.0021742 | 1.6094379 | 0.0034993 |
 
-This table 5 tokens from each search term with the highest TF-IDF value.
+This table showed 5 tokens from each search term with the highest TF-IDF
+value. Instead of indicating the word frequency for the corresponding
+search term (as Q1 displayed), the tf-idf indicated the specific
+relevance of the token for specific search term. For example, for search
+term ‘prostate cancer’, though the frequency of ‘disease’ and ‘patients’
+were higher than that of ‘androgen’, ‘psa’, ‘prostatectomy’, and
+‘castration’, the latter four words were more specfically relevant for
+‘prosate cancer’ as they were unique and important for prostate cancer
+treatment. Similarity could be applied to the other search term.
